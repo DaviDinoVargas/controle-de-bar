@@ -29,7 +29,7 @@ public class Program
 
         builder.Services.AddScoped<IDbConnection>(provider =>
         {
-            var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection");
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             return new SqlConnection(connectionString);
         });
 
