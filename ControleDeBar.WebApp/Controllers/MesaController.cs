@@ -1,5 +1,4 @@
 ﻿using ControleDeBar.Dominio.ModuloMesa;
-using ControleDeBar.Infraestrutura.Orm.Compartilhado;
 using ControleDeBar.WebApp.Extensions;
 using ControleDeBar.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,12 +8,10 @@ namespace ControleDeBar.WebApp.Controllers;
 [Route("mesas")]
 public class MesaController : Controller
 {
-    private readonly ControleDeBarDbContext contexto;
     private readonly IRepositorioMesa repositorioMesa;
 
-    public MesaController(ControleDeBarDbContext contexto, IRepositorioMesa repositorioMesa)
+    public MesaController(IRepositorioMesa repositorioMesa)
     {
-        this.contexto = contexto;
         this.repositorioMesa = repositorioMesa;
     }
 
@@ -38,45 +35,33 @@ public class MesaController : Controller
 
     [HttpPost("cadastrar")]
     [ValidateAntiForgeryToken]
-    public ActionResult Cadastrar(CadastrarMesaViewModel cadastrarVM)
+    public IActionResult Cadastrar(CadastrarMesaViewModel cadastrarVM)
     {
         var registros = repositorioMesa.SelecionarRegistros();
 
-        if (registros.Any(x => x.Numero.Equals(cadastrarVM.Numero)))
-            ModelState.AddModelError("CadastroUnico", "Já existe uma mesa registrada com este número.");
+        foreach (var item in registros)
+        {
+            if (item.Numero == cadastrarVM.Numero)
+            {
+                ModelState.AddModelError("CadastroUnico", "Já existe uma mesa com este número.");
+                break;
+            }
+        }
 
         if (!ModelState.IsValid)
             return View(cadastrarVM);
 
         var entidade = cadastrarVM.ParaEntidade();
 
-        var transacao = contexto.Database.BeginTransaction();
-
-        try
-        {
-            repositorioMesa.CadastrarRegistro(entidade);
-
-            contexto.SaveChanges();
-
-            transacao.Commit();
-        }
-        catch (Exception)
-        {
-            transacao.Rollback();
-
-            throw;
-        }
+        repositorioMesa.CadastrarRegistro(entidade);
 
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet("editar/{id:guid}")]
-    public ActionResult Editar(Guid id)
+    public IActionResult Editar(Guid id)
     {
         var registroSelecionado = repositorioMesa.SelecionarRegistroPorId(id);
-
-        if (registroSelecionado is null)
-            return RedirectToAction(nameof(Index));
 
         var editarVM = new EditarMesaViewModel(
             id,
@@ -89,45 +74,33 @@ public class MesaController : Controller
 
     [HttpPost("editar/{id:guid}")]
     [ValidateAntiForgeryToken]
-    public ActionResult Editar(Guid id, EditarMesaViewModel editarVM)
+    public IActionResult Editar(Guid id, EditarMesaViewModel editarVM)
     {
         var registros = repositorioMesa.SelecionarRegistros();
 
-        if (registros.Any(x => !x.Id.Equals(id) && x.Numero.Equals(editarVM.Numero)))
-            ModelState.AddModelError("CadastroUnico", "Já existe uma mesa registrada com este número.");
+        foreach (var item in registros)
+        {
+            if (!item.Id.Equals(id) && item.Numero == editarVM.Numero)
+            {
+                ModelState.AddModelError("CadastroUnico", "Já existe uma mesa com este número.");
+                break;
+            }
+        }
 
         if (!ModelState.IsValid)
             return View(editarVM);
 
         var entidadeEditada = editarVM.ParaEntidade();
 
-        var transacao = contexto.Database.BeginTransaction();
-
-        try
-        {
-            repositorioMesa.EditarRegistro(id, entidadeEditada);
-
-            contexto.SaveChanges();
-
-            transacao.Commit();
-        }
-        catch (Exception)
-        {
-            transacao.Rollback();
-
-            throw;
-        }
+        repositorioMesa.EditarRegistro(id, entidadeEditada);
 
         return RedirectToAction(nameof(Index));
     }
 
     [HttpGet("excluir/{id:guid}")]
-    public ActionResult Excluir(Guid id)
+    public IActionResult Excluir(Guid id)
     {
         var registroSelecionado = repositorioMesa.SelecionarRegistroPorId(id);
-
-        if (registroSelecionado is null)
-            return RedirectToAction(nameof(Index));
 
         var excluirVM = new ExcluirMesaViewModel(registroSelecionado.Id, registroSelecionado.Numero);
 
@@ -135,42 +108,10 @@ public class MesaController : Controller
     }
 
     [HttpPost("excluir/{id:guid}")]
-    public ActionResult ExcluirConfirmado(Guid id)
+    public IActionResult ExcluirConfirmado(Guid id)
     {
-        var transacao = contexto.Database.BeginTransaction();
-
-        try
-        {
-            repositorioMesa.ExcluirRegistro(id);
-
-            contexto.SaveChanges();
-
-            transacao.Commit();
-        }
-        catch (Exception)
-        {
-            transacao.Rollback();
-
-            throw;
-        }
+        repositorioMesa.ExcluirRegistro(id);
 
         return RedirectToAction(nameof(Index));
-    }
-
-    [HttpGet("detalhes/{id:guid}")]
-    public ActionResult Detalhes(Guid id)
-    {
-        var registroSelecionado = repositorioMesa.SelecionarRegistroPorId(id);
-
-        if (registroSelecionado is null)
-            return RedirectToAction(nameof(Index));
-
-        var detalhesVM = new DetalhesMesaViewModel(
-            id,
-            registroSelecionado.Numero,
-            registroSelecionado.Capacidade
-        );
-
-        return View(detalhesVM);
     }
 }
