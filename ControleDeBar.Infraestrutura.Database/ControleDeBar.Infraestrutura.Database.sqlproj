@@ -11,8 +11,8 @@
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
-    <RootNamespace>eAgenda.Infraestrutura.Database</RootNamespace>
-    <AssemblyName>eAgenda.Infraestrutura.Database</AssemblyName>
+    <RootNamespace>ControleDeBar.Infraestrutura.Database</RootNamespace>
+    <AssemblyName>ControleDeBar.Infraestrutura.Database</AssemblyName>
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
@@ -47,6 +47,7 @@
     <DefineTrace>true</DefineTrace>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>ARM64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
@@ -61,4 +62,7 @@
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
   </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent />
+  </PropertyGroup>
 </Project>

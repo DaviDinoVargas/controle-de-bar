@@ -31,7 +31,7 @@ public class Program
         // Registra conexão com banco SQL usando connection string do appsettings.json
         builder.Services.AddScoped<IDbConnection>(provider =>
         {
-            var connectionString = builder.Configuration["SQL_CONNECTION_STRING"];
+            var connectionString = builder.Configuration.GetConnectionString("SqlServer");
             return new SqlConnection(connectionString);
         });
 
