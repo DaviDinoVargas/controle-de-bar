@@ -5,7 +5,7 @@ using System.Data;
 
 namespace ControleDeBar.Infraestrutura.SqlServer.ModuloMesa
 {
-    public class RepositorioMesaEmSql : RepositorioBaseEmSql<Mesa>, IRepositorio<Mesa>
+    public class RepositorioMesaEmSql : RepositorioBaseEmSql<Mesa>, IRepositorioMesa
     {
         public RepositorioMesaEmSql(IDbConnection conexaoComBanco) : base(conexaoComBanco)
         {
