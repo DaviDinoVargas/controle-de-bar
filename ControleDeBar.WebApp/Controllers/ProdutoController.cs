@@ -102,10 +102,14 @@ public class ProdutoController : Controller
     {
         var registroSelecionado = repositorioProduto.SelecionarRegistroPorId(id);
 
+        if (registroSelecionado == null)
+            return NotFound(); 
+
         var excluirVM = new ExcluirProdutoViewModel(registroSelecionado.Id, registroSelecionado.Nome);
 
         return View(excluirVM);
     }
+
 
     [HttpPost("excluir/{id:guid}")]
     public IActionResult ExcluirConfirmado(Guid id)
