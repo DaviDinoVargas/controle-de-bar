@@ -21,21 +21,18 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Adiciona filtros globais para validação e logging de ações
         builder.Services.AddControllersWithViews(options =>
         {
             options.Filters.Add<ValidarModeloAttribute>();
             options.Filters.Add<LogarAcaoAttribute>();
         });
 
-        // Registra conexão com banco SQL usando connection string do appsettings.json
         builder.Services.AddScoped<IDbConnection>(provider =>
         {
-            var connectionString = builder.Configuration.GetConnectionString("SqlServer");
+            var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection");
             return new SqlConnection(connectionString);
         });
 
-        // Registra repositórios usando implementações SQL
         builder.Services.AddScoped<IRepositorioGarcom, RepositorioGarcomEmSql>();
         builder.Services.AddScoped<IRepositorioProduto, RepositorioProdutoEmSql>();
         builder.Services.AddScoped<IRepositorioMesa, RepositorioMesaEmSql>();
